@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+
+    <title>EQ(exam encryption)</title>
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/lecturerhomepage" >EQ</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-light"  href="/encryptquestion">Encrypt Question</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/keyrepolecturer">Key Repository</a>
+          </li>
+          
+        </ul>
+        
+      </div>
+     
+    </div>
+    <li class="nav-item d-flex">
+      <a href="/logout" class="btn btn-secondary btn-sm mx-2" href="#" tabindex="-1" aria-disabled="true" @click="logout">
+        Logout
+    </a>
+    </li>
+  </nav>
+
+      <h4 class="text-center pt-3">Encrypt Question Below</h4>
+      <div id="encryptionContainer">
+      
+        <div class="alert alert-danger w-50 mx-auto" v-if="errorId">
+            {{errorMessage}}
+        </div>
+
+        <div class="alert alert-success w-50 mx-auto" v-if="succId">
+          {{successMessage}}
+      </div>
+
+      <div class="container py-5 border shadow-lg w-50 mt-5 row-cols-lg-auto g-5 align-items-center">
+        <label for="">Choose Question</label>
+        <div class="input-group mb-3">
+            <input v-model="selectQuestion" type="file"  @change="onUploadedFile"  ref="fileChoosed" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+         
+        <label for="">Load Public Key</label>
+        <div class="input-group mb-3">
+            <input v-model="selectPublickey" type="file" @change="onUploadPublicKey"  ref="choosePublicKey" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+
+        <div class="row">
+           <div class="col-md-6">
+            <label for="">Plain Text</label>
+            <textarea readonly v-model="plaintext" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+           </div>
+           <div class="col-md-6">
+            <label for="">Public Key</label>
+            <textarea readonly v-model="publickey" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+           </div>
+        </div>
+
+        <div class="row px-3 mx-1 my-4">
+            <label for="">Cipher Text</label>
+            <textarea readonly v-model="ciphertext" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+        </div>
+          
+        <div class="row">
+
+          <div class="col-md-8">
+            <button v-if="encryptBtnStatus" @click="onEncrypt" class="btn btn-primary form-control w-50 ">Encrypt Question</button>
+            <button  v-if="resetBtnStatus" @click="onReset" class="btn btn-danger form-control w-50 mt-2">Reset</button>
+          </div>
+
+          <div class="col-md-4">
+             <button  class="btn btn-warning" @click="onSend">Send CipherText</button>
+          </div>
+
+        </div>
+      </div>
+      </div>
+
+</body>
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/popper.min.js"></script>
+<script src="../public/vue.js"></script>
+<script src="../public/axios.min.js"></script>
+<script src="../public/FileSaver.min.js"></script>
+
+<script>
+  var vue = new Vue({
+     el:"#encryptionContainer",
+     data:{
+        plaintext:"",
+        filePath:"",
+        publickey:"",
+        ciphertext:"",
+        successMessage:"",
+        errorMessage:"",
+        succId:false,
+        errorId:false,
+        encryptBtnStatus:true,
+        resetBtnStatus:false,
+        selectQuestion:"",
+        selectPublickey:"",
+        
+     },
+     methods:{
+       onUploadedFile(e){
+        let formData = new FormData()
+        formData.append("file",this.$refs.fileChoosed.files[0])
+        axios.post("/plaintext",formData,{headers:{"Content-Type":"multipart/form-data"}})
+             .then(res=>{
+                let plaintext = res.data.read
+                plaintext.replace(/ /g,'')
+                this.plaintext = plaintext
+                this.filePath = res.data.filedir
+                //console.log(this.filePath)
+             })
+             .catch(error=>{
+                console.log(error.data)
+             })
+        
+       },
+
+       onUploadPublicKey(e){
+        // console.log(this.$refs.choosePublicKey.files[0])
+         let formData = new FormData()
+         formData.append("publickey", this.$refs.choosePublicKey.files[0])
+         axios.post("/uploadPublicKey", formData, {headers:{"Content-Type":"multipart/form-data"}})
+              .then(res=>{
+                this.publickey = res.data.publickey
+              })
+              .catch(error=>{
+                console.log(error)
+              })
+       },
+
+       onEncrypt(){
+          
+          if(this.publickey !== "" && this.plaintext !== ""){
+            axios.post("/encrypt", {"publickey":this.publickey, "plaintext":this.filePath})
+               .then(res=>{
+                 this.ciphertext = res.data.result
+                 this.encryptBtnStatus = false
+                 this.resetBtnStatus = true
+               })
+               .catch(error=>{
+                 console.log(error)
+               })
+          }else
+          {
+            alert("Please provide public key and plain text")
+          }
+       },
+
+       onReset(){
+         this.plaintext = ""
+         this.ciphertext = ""
+         this.publickey = ""
+         this.encryptBtnStatus = true
+         this.resetBtnStatus = false
+         this.$refs.choosePublicKey.files[0] = "" 
+         this.$refs.fileChoosed.files[0] = ""
+         this.selectPublickey = "",
+         this.selectQuestion = ""
+        //  console.log()
+       },
+
+       onSend(){
+        if(this.ciphertext !== ""){
+          let user_email = localStorage.getItem("email")
+          let cipher = this.ciphertext
+          axios.post("/sendcipher",{cipher, user_email})
+               .then(res=>{
+                if(res.data.status)
+                {
+                  this.errorId = false
+                  this.errorMessage = ""
+
+                  this.succId = true
+                  this.successMessage = "Message Successfully Sent"
+                   
+                  setTimeout(()=>{
+                    this.succId = false
+                    this.successMessage = ""
+                    this.onReset()
+                  }, 4000)
+                }
+                else{
+                  this.errorId = false
+                  this.errorMessage = "Ooops, something went wrong, please try again"
+                }
+               })
+               .catch(error=>{
+                  this.errorId = false
+                  this.errorMessage = "Ooops, something went wrong, please try again"
+               })
+        }
+        else
+        {
+          alert("No cipher text has been generated")
+          // console.log(localStorage.getItem("email"))
+        }
+       }
+
+
+     }
+  })
+</script>
+</html>

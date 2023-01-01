@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/style.css">
+    <title>EQ(exam encryption)</title>
+
+<style>
+  body,html{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  font-family: sans-serif;
+  background-image: url("../public/lad.jpg");
+  background-size: cover;
+  
+}
+.Section_top{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-image: url("../public/lad.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-align: center;
+  justify-content: center;
+  animation: change 10s infinite ease-in-out;
+}
+.content{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+
+}
+.content h1{
+  color: #fff;
+  font-size: 60px;
+  letter-spacing: 15px;
+}
+.content h1 span{
+  color: #111;
+}
+.content a{
+  background: #85c1ee;
+  padding: 10px 24px;
+  text-decoration: none;
+  font-size: 18px;
+  border-radius: 20px;
+}
+.content a:hover{
+  background: #034e88;
+  color: #fff;
+}
+@keyframes change{
+  0%
+  {
+      background-image: url("../public/photo.jpg");
+  }
+  20%
+  {
+      background-image: url("../public/lad.jpg");
+  }
+  40%
+  {
+      background-image: url("../public/lec.jpg");
+  }
+  60%
+  {
+      background-image: url("../public/up.jpeg");
+  }
+  80%
+  {
+      background-image: url("../public/Examinationsx.jpg");
+  }
+  100%
+  {
+      background-image: url();
+  }
+}
+  </style>
+
+</head>
+<body >
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+        <div class="container-fluid">
+          <a class="navbar-brand text-white" href="/lecturerhomepage" >EQ</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link text-light"  href="/encryptquestion">Encrypt Question</a>
+              </li>
+              
+
+              
+
+              <!-- <li class="nav-item">
+                <a class="nav-link text-light" href="/addlecturer">Add New</a>
+              </li> -->
+
+              <li class="nav-item">
+                <a class="nav-link text-light" href="/keyrepolecturer">Key Repository</a>
+              </li>
+
+              
+
+              
+            </ul>
+            
+          </div>
+         
+        </div>
+        <div class="nav-item">
+          <a class="nav-link text-light" href="/addlecturer">Welcome Back, </a><div id="username"></div>
+        </div>
+
+        <li class="nav-item d-flex">
+          <a href="/logout" class="btn btn-secondary btn-sm mx-2" href="#" tabindex="-1" aria-disabled="true" @click="logout">
+            Logout
+        </a>
+        </li>
+      </nav>
+
+     
+      <div class="Section_top">
+        <div class="content">
+            <h1><span class="bg-info border shadow-lg">EQ</span> <span class="bg-info border shadow-lg">Secure</span></h1>
+            <a class="border shadow alert alert-danger">Welcome</a>
+        </div>
+    </div>
+    </footer>
+</body>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/popper.min.js"></script>
+<footer class="footer bg-dark text-white">
+  <div class="row py-1">
+    <div class="col-md-6 text-center py-2" style="font-family:cursive;">
+        <div class="text-center" style="font-family:cursive;">
+            All Copy Right &copy; Reserved 
+        </div> 
+       
+    </div>
+    <div class="col-md-6 py-2">
+        <div class="text-center" style="font-family:cursive;">
+            Developed by group 36
+        </div> 
+    </div>
+  </div> 
+</footer>
+</html>
+
+<script>
+  function fetchName(){
+    let doc = document.querySelector("#username")
+    doc.innerHTML = localStorage.getItem("email")
+    // console.log(localStorage.getItem("email"))
+  }
+
+  fetchName()
+</script>

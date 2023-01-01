@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link type="text/css" rel=""/> -->
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+    <title>EQ</title>
+    <style>
+      body{
+        background-image: url("../public/expersons1.jpg");
+        background-size: cover;
+      }
+    </style>
+</head>
+<body style="">
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/lecturerhomepage" >EQ</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+     
+    </div>
+   
+  </nav>
+
+    <div class="container mx-auto shadow-lg border bg-muted w-50 p-5 mt-5 rounded bg-info">
+      <h2 class="text-center">EQ Secure</h2>
+      <img src="../public/nacos.png" alt=""  class="w-25 h-25  rounded-circle mx-auto d-block" srcset="">
+        <h4 class="text-center">Sign In</h4>
+       <div id="signin">
+
+          <div class="alert alert-danger text-center" v-if="fillError">
+            <p>{{fillAll}}</p>
+         </div>
+
+         <div class="alert alert-danger text-center" v-if="wrongDetails">
+          <p>{{errorMessage}}</p>
+        </div>
+
+        
+
+        <div class="mx-auto" >
+          <label for="" class="text-dark" style="font-size:24px;">Email</label>
+          <input type="email" v-model="email" placeholder="Enter Email" name="" id="" class="form-control my-2" required>
+          <label for=""style="font-size:24px;">Password</label>
+          <input type="password" v-model="pass" placeholder="Enter Password" class="form-control my-2" name="" id="" required>
+          <label for=""style="font-size:24px;">Role</label>
+          <select  v-model="selectedvalue"   class="form-control my-2" required>
+            <option >Examiner</option>
+            <option>Lecturer</option>
+          </select>
+          <button  @click="signin" class="btn btn-sm text-white" style="background-color:purple;">Sign In</button>
+
+        </div>
+        <div class="alert alert-success text-center mt-2" v-if="success">
+          <p>{{successMsg}}</p>
+        </div>
+       </div>
+    </div>
+</body>
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/popper.min.js"></script>
+<script src="../public/vue.js"></script>
+<script src="../public/axios.min.js"></script>
+<script src="../public/FileSaver.min.js"></script>
+
+<script>
+ var vue = new Vue({
+    el:"#signin",
+    data:{
+      selectedvalue:"",
+      pass:"",
+      email:"",
+      errorMessage:"",
+      fillAll:"",
+      successMsg:"",
+      success:false,
+      fillError:false,
+      wrongDetails:false
+    },
+    methods:{
+      signin(){
+        // e.preventDefault()
+        
+        let option = this.selectedvalue
+        let password = this.pass
+        let email = this.email
+        
+      
+        axios.post("/signin",{option,password,email})
+             .then(res=>{
+              if(res.data.redirect_to == "examiner"){
+                this.fillAll = ""
+                // this.wrongDetails = true
+                this.fillError = false
+                // console.log(res.data)
+                this.success = true
+                this.successMsg = `Login was succsessfull please wait, while you are redirected to the ${option}, section`
+                setTimeout(()=>{
+                  window.location.href="/examinerhomepage"
+                  this.successMsg =""
+                  this.success = false
+                },3000)
+              }
+              
+              if(res.data.redirect_to == "lecturer")
+              {
+                this.fillAll = ""
+                // this.wrongDetails = true
+                this.fillError = false
+                this.success = true
+                this.successMsg = `Login was succsessfull please wait, while you are redirected to the ${option}, section`
+                
+                localStorage.setItem("email",email)
+              
+                setTimeout(()=>{
+                  window.location.href="/lecturerhomepage"
+                  this.successMsg =""
+                  this.success = false
+                },3000)
+              }
+
+              if(res.data.redirect_to =="empty"){
+                console.log("Ki")
+              }
+
+              if (res.data.status == false) 
+              {
+                this.fillAll = "Please fill all the entries, and make sure the provided data are correct"
+                // this.wrongDetails = true
+                this.fillError = true
+              }
+            
+              console.log(res)
+
+             })
+             .catch(error=>{
+              console.log(error);
+             })
+
+      }
+    }
+ })
+</script>
+
+</html>

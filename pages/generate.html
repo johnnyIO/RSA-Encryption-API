@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+    
+
+    <title>EQ(Generate Key)</title>
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/examinerhomepage" >Home</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-light"  href="/decryptquestion">Decrypt Question</a>
+          </li>
+          <li class="nav-item">
+            <!-- <a class="nav-link text-light" href="/key">Generate Key</a> -->
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/viewlectures">Lecturer</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/addlecturer">Add New</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/keyrepoadmin">Key Repository</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/viewlectures">Secured Question</a>
+          </li>
+
+          
+        </ul>
+        
+      </div>
+     
+    </div>
+    <li class="nav-item d-flex">
+      <a href="/logout" class="btn btn-secondary btn-sm mx-2" href="#" tabindex="-1" aria-disabled="true" @click="logout">
+        Logout
+    </a>
+    </li>
+  </nav>
+
+      
+
+      <h4 class="text-center pt-3">Generate Keys Below</h4>
+      
+        <div id="vuecontainer">
+          <div class="alert alert-danger w-50 border mx-auto" v-if="resultState">
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Architecto delectus dolorem minima expedita aut voluptatum quis ipsam quisquam nesciunt atque, tempore laboriosam enim omnis eum, id esse? Quo, delectus repellendus.
+         </div>
+         <div class="alert alert-success w-50 border mx-auto" v-if="successMsg">
+          {{messageContent}}
+       </div>
+        <div class="row mx-auto w-50 justify-content-center mt-5">
+            <button class="btn btn-primary form-control w-50 " v-if="listenForChange" @click="generateKey">Click To Generate Keys</button>
+            <!-- <button class="btn btn-danger form-control w-50 mx-2" v-if="resetButtonState" ></button> -->
+            <button type="button" class="btn btn-danger form-control w-50 mx-2" v-if="resetButtonState"  data-bs-toggle="modal" data-bs-target="#exampleModal">
+              Reset Generated Keys
+            </button>
+
+            <button type="button"  class="btn btn-info mt-2 rounded form-control w-50 mx-2" v-if="distButtonState"  data-bs-toggle="modal" data-bs-target="#exampleModal2">
+              Distribute Public Key
+            </button>
+
+          </div>
+
+        <div class="row w-50 mx-auto mt-5 border shadow-sm p-4">
+           <div class="col-md-6">
+            <label for="">Public Key </label>
+            <textarea readonly v-model="publicKey"  name="" id="" cols="30" rows="10" class="form-control" ></textarea>
+            <input type="text" name="" class="form-control mt-2" id="" placeholder="Save public key as?" v-model="puksavename">
+            <button v-if="btnPrivate" class="btn btn-sm text-white mt-2" style="background-color:purple;" @click="savePublicKey">Save Public Key</button>
+            
+           </div>
+           <div class="col-md-6">
+            <label for="">Private Key</label>
+            <textarea readonly v-model="privateKey" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+            <input type="text" name="" class="form-control mt-2" id="" placeholder="Save private key as?" v-model="pksavename">
+            <button  v-if="btnPublic" class="btn btn-sm text-white mt-2" style="background-color:purple;" @click="savePrivateKey">Save Private Key</button>
+           </div>
+        </div>
+        <!-- Modal Start -->
+        <!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <p> Are you sure you want to reset this entries?</p>
+       <p>You will loose both keys</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"  @click="resetKey">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- End of Modal -->
+
+        <!-- Modal -->
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <p>You are about to distribute the public key,</p>
+       <p>the key pair will be saved in the key repository,</p>
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-info" data-bs-dismiss="modal"  @click="distributeKey">Proceed</button>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- End of Modal -->
+
+
+        
+
+</div>
+</div>
+
+</body>
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/popper.min.js"></script>
+<script src="../public/vue.js"></script>
+<script src="../public/axios.min.js"></script>
+<script src="../public/FileSaver.min.js"></script>
+
+<script>
+  var vue = new Vue({
+    el:"#vuecontainer",
+    data:{
+      name:"checking",
+      privateKey:"",
+      publicKey:"",
+      pksavename:"",
+      puksavename:"",
+      resultState:false,
+      successMsg:false,
+      listenForChange:true,
+      resetButtonState:false,
+      distButtonState:false,
+      btnPrivate:false,
+      btnPublic:false,
+      messageContent:"Below is your key pair, please ensure you save them securely",
+
+    },
+    methods:{
+
+      generateKey (){
+  
+       axios.get('/testingapi')
+            .then(res=>{
+              // console.log(res.data)
+              // privateKey = res.data
+
+              if(res.data.privateKey !== ""){
+                
+                this.privateKey = res.data.private_key
+                this.publicKey = res.data.public_key
+                this.successMsg = true
+                this.listenForChange = false
+                this.resetButtonState = true
+                this.btnPrivate = true
+                this.btnPublic = true
+                this.distButtonState = true
+              }
+              else{
+               this.resultState = true
+              }
+
+            })
+            .catch(error=>{
+              console.log(error);
+            })
+
+      },
+
+      resetKey(){
+        this.privateKey = ""
+        this.publicKey = ""
+        this.resetButtonState = false
+        this.listenForChange = true
+        this.btnPrivate = false
+        this.btnPublic = false
+        this.successMsg = false
+        this.distButtonState = false
+
+      },
+
+      savePrivateKey(){
+
+        if(this.pksavename !== ""){
+
+          var myPrivatekey = new File(
+          [this.privateKey],
+          this.pksavename,
+          {type:"text/plain;charset=utf8"}
+        );
+        //Here is the function that saves the file 
+        saveAs(myPrivatekey);
+        }else{
+            alert("Please provide a name for private key file")
+        }
+
+        
+        
+      },
+
+      savePublicKey(){
+        if(this.puksavename !== ""){
+
+            var myPublickey = new File(
+            [this.publicKey] ,
+            this.puksavename,
+            {type:"text/plain;charset=utf8"}
+            );
+            //Here is the function that saves the file 
+            saveAs(myPublickey);
+            }else{
+              alert("Please provide a name for your public key file")
+            }
+      },
+
+      distributeKey(){
+       let public_k = this.publicKey
+       let private_k = this.privateKey
+       axios.post("/distribute",{public_k, private_k})
+            .then(res=>{
+              if(res.data.status)
+              {
+                this.distButtonState = false
+              }
+            })
+            .catch(error=>{
+              console.log(error)
+            })
+      },
+
+    }
+  })
+</script>
+
+</html>

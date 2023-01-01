@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link type="text/css" rel=""/> -->
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+    <title>EQ</title>
+
+    <style>
+        body{
+            /* background-image:url('../images/up.jpeg'); */
+            background-repeat:no-repeat;
+            /* background-position: cover; */
+            background-size: cover;
+        }
+        footer{
+            position:relative;
+            margin-top: 42px;
+            bottom: 0;
+            height:60px;
+            width: 100%;
+        }
+      </style>
+</head>
+<body style="background-color:rgb(237, 235, 235);">
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/examinerhomepage" >EQ</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-light"  href="/decryptquestion">Decrypt Question</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/key">Generate Key</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/viewlectures">Lecturer</a>
+          </li>
+
+          <li class="nav-item">
+            <!-- <a class="nav-link text-light" href="/addlecturer">Add New</a> -->
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/keyrepoadmin">Key Repository</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/viewlectures">Secured Question</a>
+          </li>
+
+          
+        </ul>
+        
+      </div>
+     
+    </div>
+    <li class="nav-item d-flex">
+      <a href="/logout" class="btn btn-secondary btn-sm mx-2" href="#" tabindex="-1" aria-disabled="true" @click="logout">
+        Logout
+    </a>
+    </li>
+  </nav>
+
+    <div class="container mx-auto shadow-lg border bg-muted w-50 p-5 mt-5 rounded" id="addnew">
+        <h4 class="text-center">Add New User</h4>
+         <div class="alert alert-danger text-center" v-if="errState" >
+          {{errorMessage}}
+         </div>
+
+         <div class="alert alert-success text-center" v-if="succState" >
+          {{successMessage}}
+         </div>
+        <div >
+          <label for="">Firstname</label>
+          <input type="text" placeholder="Enter Firstname" v-model="first_name" name="" id="" class="form-control my-2">
+          <label for="">Lastname</label>
+          <input type="text" placeholder="Enter Lastname" v-model="last_name"  class="form-control my-2" name="" id="">
+          <label for="">Email</label>
+          <input type="text" name="" id="" v-model="email"  placeholder="Enter Email" class="form-control">
+          <label for="">Password</label>
+          <input type="password" v-model="password" placeholder="Enter Password" class="form-control">
+
+          <label for="">Re-type Password</label>
+          <input type="password" v-model="re_type" placeholder="Re-type Password" class="form-control">
+
+          <label for="">Role</label>
+          <select name="" id="" class="form-control" v-model="role">
+            <option >Lecturer</option>            
+          </select>
+          <button  class="btn btn-sm text-white mt-2" @click="addNewUser" style="background-color:purple;" >Add user</button>
+        </div>
+    </div>
+</body>
+<footer class="footer bg-dark text-white">
+    <div class="row py-1">
+      <div class="col-md-6 text-center py-2" style="font-family:cursive;">
+          <div class="text-center" style="font-family:cursive;">
+              All Copy Right &copy; Reserved 
+          </div> 
+         
+      </div>
+      <div class="col-md-6 py-2">
+          <div class="text-center" style="font-family:cursive;">
+              Developed by group 36
+          </div> 
+      </div>
+    </div> 
+  </footer>
+
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/popper.min.js"></script>
+<script src="../public/vue.js"></script>
+<script src="../public/axios.min.js"></script>
+<script src="../public/FileSaver.min.js"></script>
+
+<script>
+   var vue = new Vue({
+     el:"#addnew",
+     data:{
+         first_name:"",
+         last_name:"",
+         email:"",
+         password:"",
+         re_type:"",
+         role:"",
+         errorMessage:"",
+         successMessage:"",
+         succState:false,
+         errState:false,
+
+     },
+     methods:{
+       clear(){
+         this.first_name = "",
+         this.last_name = "",
+         this.email = "",
+         this.password ="",
+         this.re_type ="",
+         this.role = ""
+       }, 
+
+       addNewUser(){
+        let first_name = this.first_name.toLowerCase()
+        let last_name = this.last_name.toLowerCase()
+        let email = this.email.toLowerCase()
+        let role = this.role.toLowerCase()
+        let password = this.password.toLowerCase()
+        
+        if(password !== this.re_type){
+           alert("Password do not match")
+        }else{
+          axios.post("/adminadduser",{first_name, last_name, email, role, password})
+             .then(res=>{
+
+                if(res.data.emailError){
+                   this.errState = true
+                   this.errorMessage = "Please provide a valid email"
+                }
+
+                if(res.data.incomplete){
+                  this.errState = true
+                  this.errorMessage = "Please ensure you fill all the fields"
+                }
+
+                if(res.data.success){
+                  this.errState = false
+                  this.succState = true
+                  this.successMessage = "Registration was successfull"
+
+                  setTimeout(()=>{
+                    this.successMessage = ""
+                    this.succState = false
+                  },5000)
+                }
+
+                if(res.data.internalError){
+                  this.errState = true
+                  this.errorMessage = "An internal error occured, please check your connection"
+                }
+            })
+            .catch(err=>{
+               console.log(err)
+            })
+        }
+        
+       }
+
+
+     }
+   })
+</script>
+
+</html>

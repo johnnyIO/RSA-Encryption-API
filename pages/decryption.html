@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/bootstrap.min.css">
+
+    <title>EQ(exam encryption)</title>
+
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark text-light">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/examinerhomepage" >Home</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-light"  href="/decryptquestion">Decrypt Question</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/key">Generate Key</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/viewlectures">Lecturer</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/addlecturer">Add New</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/keyrepoadmin">Key Repository</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/secured">Secured Question</a>
+          </li>
+
+          
+        </ul>
+        
+      </div>
+     
+    </div>
+    <li class="nav-item d-flex">
+      <a href="/logout" class="btn btn-secondary btn-sm mx-2" href="#" tabindex="-1" aria-disabled="true" @click="logout">
+        Logout
+    </a>
+    </li>
+  </nav>
+
+      <h4 class="text-center pt-3">Decrypt Question Below</h4>
+      <div id="decryptionContainer">
+      <div class="container py-5 border shadow-lg w-50 mt-5 row-cols-lg-auto g-5 align-items-center">
+        <div class="alret alert-danger text-center p-3" v-if="exeError">
+            {{errorMessage}}
+            <button class="btn btn-sm btn-danger" @click="errorClear">clear key</button>
+        </div>
+        
+        <label for="">Choose Cipher Text</label>
+        <div class="input-group mb-3">
+            <input v-model="selectQuestion" type="file"  @change="onUploadCipherText"  ref="cipherfilechoosed" class="form-control"  aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+         
+        <label for="">Load Private Key</label>
+        <div class="input-group mb-3">
+            <input v-model="selectPrivateKey" type="file" @change="onUploadPrivateKey"  ref="choosePrivateKey" class="form-control"  aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+            <!-- Reset Button -->
+            <div class="align-content-center text-center">
+                <button v-if="resetBtnStatus" @click="onReset" class="btn btn-danger form-control w-50 mt-2">Reset</button>
+
+            </div>
+            <!--  -->
+        <div class="row">
+           
+
+           <div class="col-md-6">
+            <label for="">Cipher Text</label>
+            <textarea readonly v-model="ciphertext" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+           </div>
+           <div class="col-md-6">
+            <label for="">Private Key</label>
+            <textarea readonly v-model="privatekey" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+           </div>
+        </div>
+
+        <div class="row px-3 mx-1 my-4">
+            <label for="">Plain Text</label>
+            <textarea readonly v-model="plaintext" name="" id="" cols="30" rows="10" class="form-control"></textarea>
+        </div>
+          
+        <div class="row">
+
+          <div class="col-md-8">
+            <button v-if="decryptBtnStatus" @click="onDecrypt" class="btn btn-primary form-control w-50 ">Decrypt Question</button>
+            
+          </div>
+
+          <div class="col-md-4">
+             <!-- <input type="text" v-model="plaintext_saveas" class="form-control mb-2" placeholder="Save as?"> -->
+             <a class="btn btn-success btn-sm" v-if="!decryptBtnStatus" :href="downloadPath" >Save Question</a>
+          </div>
+
+        </div>
+      </div>
+      </div>
+
+</body>
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/popper.min.js"></script>
+<script src="../public/vue.js"></script>
+<script src="../public/axios.min.js"></script>
+<script src="../public/FileSaver.min.js"></script>
+
+<script>
+  var vue = new Vue({
+     el:"#decryptionContainer",
+     data:{
+        plaintext:"",
+        privatekey:"",
+        plaintext_saveas:"",
+        ciphertext:"",
+        decryptBtnStatus:true,
+        resetBtnStatus:false,
+        exeError:false,
+        selectQuestion:"",
+        selectPrivateKey:"",
+        downloadPath:"",
+        errorMessage:"An error occured while trying to decrypt, ensure you provided the right key"
+        
+     },
+     methods:{
+       onUploadCipherText(e){
+        
+        let formData = new FormData()
+        formData.append("cipherfile",this.$refs.cipherfilechoosed.files[0])
+        axios.post("/uploadCiphertext",formData,{headers:{"Content-Type":"multipart/form-data"}})
+             .then(res=>{
+                // console.log(res.data)
+                let ciphertext = res.data.cipher
+                ciphertext.replace(/ /g,'')
+                this.ciphertext = ciphertext
+             })
+             .catch(error=>{
+                console.log(error)
+             })
+        
+       },
+
+       onUploadPrivateKey(e){
+        // console.log(this.$refs.choosePrivateKey.files[0])
+         let formData = new FormData()
+         formData.append("privatekey", this.$refs.choosePrivateKey.files[0])
+         axios.post("/uploadPrivateKey", formData, {headers:{"Content-Type":"multipart/form-data"}})
+              .then(res=>{
+                // this.publickey = res.data.publickey
+                this.privatekey = res.data.message;
+              })
+              .catch(error=>{
+                console.log(error)
+              })
+       },
+
+       onDecrypt(){
+
+          
+          if(this.privatekey !== "" && this.ciphertext !== ""){
+            // console.log({"pk":this.privatekey, "ct":this.ciphertext})
+            axios.post("/decrypt", {"privateKey":this.privatekey, "ciphertext":this.ciphertext})
+               .then(res=>{
+                
+                 if(res.data.status){
+                    this.plaintext = res.data.decrypted
+                    this.encryptBtnStatus = false
+                    this.resetBtnStatus = true
+                    this.decryptBtnStatus = false
+                    this.exeError = false
+                    this.downloadPath = res.data.filedir
+                 }else{
+                    this.exeError = true
+                 }
+                 
+                
+               })
+               .catch(error=>{
+                this.exeError = true
+               })
+          }else
+          {
+            alert("Please provide private key and cipher text")
+          }
+       },
+
+       onReset(){
+         this.plaintext = ""
+         this.ciphertext = ""
+         this.privatekey = ""
+         this.decryptBtnStatus = true
+         this.resetBtnStatus = false
+         this.$refs.choosePrivateKey.files[0] = "" 
+         this.$refs.cipherfilechoosed.files[0] = ""
+         this.selectPrivateKey = "",
+         this.selectQuestion = ""
+        //  console.log()
+       },
+
+       errorClear(){
+        this.exeError = false
+        this.privatekey = ""
+        this.$refs.choosePrivateKey.files[0] = ""
+        this.selectPrivateKey = ""
+       },
+
+       onSave(){
+        if(this.plaintext !== "" && this.plaintext_saveas !== ""){
+          var myPlainText = new File(
+            [this.plaintext],
+            this.plaintext_saveas,
+            {type:"text/plain;charset=utf8"}
+          )
+
+          saveAs(myPlainText)
+        }
+        else
+        {
+          alert("No plaintext to be saved")
+        }
+       }
+
+
+     }
+  })
+</script>
+</html>
